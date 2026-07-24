@@ -77,8 +77,8 @@
   #dlgText{font-size:14px;line-height:1.45;min-height:40px;white-space:pre-line;}
   #dlgNext{text-align:right;font-size:11px;color:#7a8598;margin-top:4px;animation:blink 1s infinite;}
   @keyframes blink{50%{opacity:.2;}}
-  .panel{position:fixed;inset:0;z-index:35;background:#000000a8;display:none;align-items:center;justify-content:center;}
-  .panelBox{width:min(94vw,560px);max-height:84vh;overflow-y:auto;background:#171a20;border:3px solid #7a8598;border-radius:12px;padding:14px;color:#e8ecf4;touch-action:pan-y;}
+  .panel{position:fixed;inset:0;z-index:35;background:#000000a8;display:none;align-items:center;justify-content:center;touch-action:pan-y;overscroll-behavior:contain;}
+  .panelBox{width:min(94vw,560px);max-height:84vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#171a20;border:3px solid #7a8598;border-radius:12px;padding:14px;color:#e8ecf4;touch-action:pan-y;overscroll-behavior:contain;}
   .panelBox h2{color:#ffd857;font-size:16px;margin-bottom:10px;text-align:center;}
   .row{display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #ffffff18;font-size:12px;gap:8px;flex-wrap:wrap;}
   .row button, .panelBox .act{background:#2f6fc6;color:#fff;border:2px solid #000;border-radius:6px;padding:5px 12px;font-weight:bold;font-family:inherit;font-size:12px;}
@@ -442,6 +442,20 @@ const FRAGNOME={fragF:"Fragmento da Floresta",fragD:"Fragmento do Deserto",fragG
 const QUESTNPC={floresta_npc:"lenha",deserto_npc:"cactos",gelo_npc:"gelo",sombrio_npc:"alma"};
 const DOORS=buildings.map(([x,y,w,h,id])=>({id,x:(x+Math.floor(w/2))*T,y:(y+h)*T}));
 
+/* ---------- ZONA SEGURA da praça ---------- */
+const PRACA={cx:80,cy:84,r:12};    // tiles em volta da praça central de Aurora
+function naPraca(wx,wy){
+  const dx=(wx-PRACA.cx*T),dy=(wy-PRACA.cy*T);
+  return dx*dx+dy*dy < (PRACA.r*T)*(PRACA.r*T);
+}
+function empurrarParaFora(e){
+  const dx=e.x-PRACA.cx*T, dy=e.y-PRACA.cy*T;
+  const d=Math.hypot(dx,dy)||1;
+  const alvo=(PRACA.r+1)*T;
+  e.x=PRACA.cx*T+dx/d*alvo;
+  e.y=PRACA.cy*T+dy/d*alvo;
+}
+
 /* ---------- inimigos ---------- */
 const EDEF={
   goblin:{nome:"Goblin",hp:14,dmg:3,spd:52,xp:12,coin:5,cor:"#4a8a3a",reg:"floresta"},
@@ -476,6 +490,7 @@ function spawnPoint(r){
   }return null;
 }
 function spawnEnemies(){
+  const antes=enemies.length;
   for(const s of SPAWNERS){
     const alive=enemies.filter(e=>e.sp===s).length;
     for(let i=alive;i<s.n;i++){
@@ -1187,7 +1202,9 @@ function questTalk(key,nome,introLines,checkFn,doneLines,reward){
 }
 
 /* ---------- painéis (UI genérica) ---------- */
+let panelAberto=false;
 function openPanel(title,builder,tabs){
+  panelAberto=true;
   $("uiTitle").textContent=title;
   const tb=$("uiTabs");tb.innerHTML="";
   if(tabs){for(const t of tabs){const b=document.createElement("button");b.textContent=t.label;
@@ -1197,7 +1214,7 @@ function openPanel(title,builder,tabs){
 }
 function row(l,html){const d=document.createElement("div");d.className="row";d.innerHTML=html;l.appendChild(d);return d;}
 function btn(r,label,fn,cls){const b=document.createElement("button");b.textContent=label;if(cls)b.className=cls;b.onclick=fn;r.appendChild(b);return b;}
-function closePanels(){$("uiPanel").style.display="none";}
+function closePanels(){panelAberto=false;$("uiPanel").style.display="none";}
 window.closePanels=closePanels;
 
 function openBag(tab){
@@ -1426,6 +1443,7 @@ let joy={active:false,id:null,cx:0,cy:0,dx:0,dy:0,mag:0};
 const joyZone=$("joyZone");
 joyZone.addEventListener("pointerdown",e=>{
   if(hudEdit)return;
+  if(panelAberto||paused)return;    // painel aberto: não sequestra o toque
   if(dlgOpen){advanceDlg();return;}
   joy.active=true;joy.id=e.pointerId;joy.cx=e.clientX;joy.cy=e.clientY;joy.dx=joy.dy=joy.mag=0;
   $("joyBase").style.display=$("joyStick").style.display="block";
@@ -1451,7 +1469,7 @@ $("btnAct").addEventListener("pointerdown",e=>{if(hudEdit)return;e.preventDefaul
 $("btnBag").addEventListener("pointerdown",e=>{if(hudEdit)return;e.preventDefault();if(!CS&&playing)openBag();});
 let bigMap=false;
 $("miniWrap").addEventListener("pointerdown",()=>{if(hudEdit)return;bigMap=!bigMap;});
-$("game").addEventListener("pointerdown",()=>{if(prologo){if(prologo.t>0.6)proxCena();return;}if(hudEdit)return;if(dlgOpen)advanceDlg();else if(CS&&locShow)nextCS();else if(bigMap)bigMap=false;});
+$("game").addEventListener("pointerdown",()=>{if(prologo){if(prologo.t>0.6)proxCena();return;}if(hudEdit)return;if(panelAberto||paused)return;if(dlgOpen)advanceDlg();else if(CS&&locShow)nextCS();else if(bigMap)bigMap=false;});
 
 /* ---------- combate ---------- */
 function facingVec(){return [[0,-1],[1,0],[0,1],[-1,0]][P.dir];}
@@ -1645,6 +1663,10 @@ function updateEnemies(dt){
       const nx=e.x+e.kx*dt,ny=e.y+e.ky*dt;
       if(d.fly||!isSolidAt(nx,ny)){e.x=nx;e.y=ny;}
       e.kx*=Math.pow(.02,dt);e.ky*=Math.pow(.02,dt);
+    }
+    if(!d.boss&&!d.arena&&naPraca(e.x,e.y)){
+      empurrarParaFora(e);
+      e.anim=0;continue;
     }
     const pd=dist(e.x,e.y,P.x,P.y);
     const aggro=d.boss?300:(d.arena?600:110);
@@ -2600,6 +2622,11 @@ const CODEX=[
   uso:"Chegue perto carregando um fragmento e toque no botão dourado ✦ Depositar Fragmento.",
   dica:"Ao colocar os 4 fragmentos, O Vazio aparece — o verdadeiro vilão. 700 de vida, invoca aliados e atira.",
   tags:"pedestal nucleo astra fragmento depositar vazio final praca"},
+ {cat:"hist",n:"🛡️ Zona segura da praça",
+  onde:"Vila Aurora — o círculo dourado tracejado ao redor da praça central.",
+  uso:"Monstros NÃO conseguem entrar nessa área. É um refúgio seguro para pausar, curar e negociar com os NPCs sem ser interrompido.",
+  dica:"Se estiver com pouca vida, corra para dentro da praça — os monstros ficam parados na borda ou são empurrados para fora.",
+  tags:"praça zona segura vila aurora refúgio proteção seguro monstros"},
  {cat:"hist",n:"⭐ Como subir de nível",
   onde:"Derrotando monstros. Cada um dá XP, que enche a barra VERDE no canto superior esquerdo.",
   uso:"Ao encher a barra você sobe de nível: ganha vida, mana e 3 pontos de atributo. No NÍVEL 3 você pode escolher sua classe com o Mestre de Classes, na praça de Aurora.",
@@ -3751,6 +3778,19 @@ function render(){
   }});
   ents.sort((a,b)=>a.y-b.y);
   for(const e of ents)e.f();
+  // marca a zona segura da praça (só quando o jogador está por perto)
+  if(!interior){
+    const dd=dist(P.x,P.y,PRACA.cx*T,PRACA.cy*T);
+    if(dd<PRACA.r*T+120){
+      const [cxp,cyp]=w2s(PRACA.cx*T,PRACA.cy*T);
+      const alpha=Math.min(0.28,Math.max(0.05,(PRACA.r*T+120-dd)/500));
+      cx.save();cx.strokeStyle=`rgba(255,216,87,${alpha})`;
+      cx.lineWidth=2.4*ZOOM;cx.setLineDash([8*ZOOM,6*ZOOM]);
+      cx.lineDashOffset=-perf/60;
+      cx.beginPath();cx.arc(cxp,cyp,PRACA.r*T*ZOOM,0,7);cx.stroke();
+      cx.setLineDash([]);cx.restore();
+    }
+  }
   drawAoes();
   drawFloaters();
   if(HUDCFG.clima)drawPlazaAir();
