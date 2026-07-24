@@ -41,6 +41,17 @@
   @keyframes fragPulse{50%{filter:brightness(1.22);}}
   #btnCtx{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(104px + env(safe-area-inset-bottom));z-index:26;background:linear-gradient(#5b9bf0,#2f6fc6);color:#fff;border:3px solid #00000090;border-radius:12px;padding:11px 20px;font-family:inherit;font-size:15px;font-weight:bold;text-shadow:1px 1px 0 #00000090;box-shadow:0 4px 0 #00000070,0 0 16px #2f6fc680;display:none;}
   #btnCtx:active{transform:translateX(-50%) translateY(3px);box-shadow:0 0 16px #5b9bf0;}
+  #btnDiario{position:fixed;right:8px;top:calc(112px + env(safe-area-inset-top));z-index:26;width:38px;height:38px;border-radius:8px;background:#c69a2f;border:2px solid #000;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;box-shadow:0 2px 0 #00000060;position:fixed;}
+  #btnDiario:active{transform:translateY(2px);box-shadow:none;filter:brightness(1.2);}
+  #btnDiario .badge{position:absolute;right:-4px;top:-4px;background:#c6392f;color:#fff;font-size:9px;font-weight:bold;padding:1px 4px;border-radius:8px;border:2px solid #000;min-width:12px;line-height:1;display:none;}
+  #btnDiario .badge.on{display:block;animation:blinkPulse 1s infinite;}
+  @keyframes blinkPulse{50%{transform:scale(1.15);}}
+  #btnPot{position:fixed;right:60px;top:calc(164px + env(safe-area-inset-top));z-index:26;width:46px;height:46px;border-radius:12px;background:#c6392f;border:3px solid #000;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;box-shadow:0 3px 0 #00000060;padding:0;line-height:1;flex-direction:column;}
+  #btnPot:active{transform:translateY(2px);box-shadow:none;filter:brightness(1.2);}
+  #btnPot .qtd{position:absolute;right:-4px;top:-4px;background:#ffd857;color:#101318;font-size:10px;font-weight:bold;padding:1px 5px;border-radius:8px;border:2px solid #000;min-width:14px;line-height:1;}
+  #btnPot.vazio{background:#3a3a44;opacity:.55;}
+  #btnPot.pisca{animation:potPulse 0.8s ease-in-out infinite;}
+  @keyframes potPulse{50%{transform:scale(1.08);box-shadow:0 0 14px #ff5040;}}
   #btnHome{position:fixed;right:8px;top:calc(164px + env(safe-area-inset-top));z-index:25;width:38px;height:38px;border-radius:50%;background:#7a2fc6;border:3px solid #00000080;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;text-shadow:1px 1px 0 #000;box-shadow:0 3px 0 #00000060;}
   #btnHome:active{transform:translateY(2px);box-shadow:none;filter:brightness(1.25);}
   #homeHold{position:fixed;right:8px;top:calc(206px + env(safe-area-inset-top));z-index:25;width:132px;display:none;text-align:right;}
@@ -78,7 +89,16 @@
   #dlgNext{text-align:right;font-size:11px;color:#7a8598;margin-top:4px;animation:blink 1s infinite;}
   @keyframes blink{50%{opacity:.2;}}
   .panel{position:fixed;inset:0;z-index:35;background:#000000a8;display:none;align-items:center;justify-content:center;touch-action:pan-y;overscroll-behavior:contain;}
-  .panelBox{width:min(94vw,560px);max-height:84vh;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#171a20;border:3px solid #7a8598;border-radius:12px;padding:14px;color:#e8ecf4;touch-action:pan-y;overscroll-behavior:contain;}
+  .panelBox{width:min(94vw,560px);max-height:84vh;background:#171a20;border:3px solid #7a8598;border-radius:12px;color:#e8ecf4;position:relative;display:flex;flex-direction:column;}
+  .panelBoxInner{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;padding:14px 14px 8px;flex:1;scroll-behavior:smooth;}
+  .scrollBtn{position:absolute;right:8px;width:38px;height:38px;border-radius:50%;background:#2f6fc6;color:#fff;
+    border:2px solid #000;font-family:inherit;font-weight:bold;font-size:19px;box-shadow:0 3px 0 #00000060;
+    display:none;align-items:center;justify-content:center;padding:0;line-height:1;z-index:3;opacity:0.9;}
+  .scrollBtn:active{transform:translateY(2px);box-shadow:none;filter:brightness(1.2);}
+  .scrollBtn.top{top:52px;}
+  .scrollBtn.bot{bottom:56px;background:#3fa32f;}
+  .scrollHint{position:absolute;left:0;right:0;bottom:44px;height:34px;pointer-events:none;
+    background:linear-gradient(to top,#171a20,#171a2000);z-index:2;display:none;}
   .panelBox h2{color:#ffd857;font-size:16px;margin-bottom:10px;text-align:center;}
   .row{display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #ffffff18;font-size:12px;gap:8px;flex-wrap:wrap;}
   .row button, .panelBox .act{background:#2f6fc6;color:#fff;border:2px solid #000;border-radius:6px;padding:5px 12px;font-weight:bold;font-family:inherit;font-size:12px;}
@@ -159,6 +179,8 @@
 <div class="btn" id="btnBag">🎒</div>
 <div id="btnHelp">❓</div>
 <div id="btnHome">🌀</div>
+<div id="btnDiario">📋<span class="badge" id="btnDiarioBadge"></span></div>
+<div id="btnPot">🧪<span class="qtd" id="btnPotQtd">0</span></div>
 <div id="btnPause">⏸</div>
 <div id="homeHold"><div id="homeHoldBar"><div id="homeHoldFill"></div></div><span id="homeHoldTxt"></span></div>
 <div id="objBanner"></div>
@@ -184,7 +206,15 @@
 <button id="skipBtn">Pular ▸</button>
 <div id="locCard"><div id="locTitle"></div><div id="locDesc"></div></div>
 <div id="chapCard"><div id="chapSmall"></div><div id="chapBig"></div></div>
-<div class="panel" id="uiPanel"><div class="panelBox"><h2 id="uiTitle"></h2><div class="tabs" id="uiTabs"></div><div id="uiList"></div><button class="closeBtn" onclick="closePanels()">Fechar</button></div></div>
+<div class="panel" id="uiPanel"><div class="panelBox">
+  <div class="panelBoxInner" id="uiScroll">
+    <h2 id="uiTitle"></h2><div class="tabs" id="uiTabs"></div><div id="uiList"></div>
+  </div>
+  <button class="scrollBtn top" id="uiUp" aria-label="Rolar para cima">▲</button>
+  <button class="scrollBtn bot" id="uiDown" aria-label="Rolar para baixo">▼</button>
+  <div class="scrollHint" id="uiHint"></div>
+  <button class="closeBtn" onclick="closePanels()">Fechar</button>
+</div></div>
 
 <div id="crashScreen" style="display:none;position:fixed;inset:0;z-index:9999;background:#101318;color:#e8ecf4;padding:16px;overflow:auto;font-family:monospace;font-size:12px;">
   <h2 style="color:#ff6b5e;font-size:16px;margin-bottom:8px;">⚠️ O jogo travou</h2>
@@ -407,7 +437,7 @@ function take(i,n){if((P.inv[i]||0)<n)return false;P.inv[i]-=n;if(P.inv[i]<=0)de
 const IN={madeira:"🪵 Madeira",minerio:"⛏️ Minério",gema:"💎 Gema",peixe:"🐟 Peixe",peixeG:"🍤 Peixe Grelhado",erva:"🌿 Erva",pocao:"🧪 Poção de Vida",pocaoM:"💙 Poção de Mana",fragG:"❄️ Fragmento do Gelo",fragD:"🏜️ Frag. do Deserto",fragF:"🌲 Frag. da Floresta",fragS:"🌑 Frag. Sombrio"};
 
 /* ---------- história ---------- */
-const ST={intro:false,cls:false,tourVisto:0,diarias:null,diariaDia:"",recorde:0,frF:0,frD:0,frG:0,frS:0,placed:0,placedList:[],vazio:0,house:false,arenaWins:0,
+const ST={intro:false,cls:false,tourVisto:0,diarias:null,diariaDia:"",recorde:0,achv:{},k:0,dmgMax:0,tot:{mad:0,min:0,gem:0,pei:0},reinos:{floresta:false,gelo:false,deserto:false,sombrio:false},frF:0,frD:0,frG:0,frS:0,placed:0,placedList:[],vazio:0,house:false,arenaWins:0,
   q:{lenha:0,lobos:0,cactos:0,gelo:0,alma:0}, qs:{lenha:0,lobos:0,cactos:0,gelo:0,alma:0}}; // qs: 0 disp 1 ativa 2 feita
 const fragsHeld=()=>["fragF","fragD","fragG","fragS"].filter(k=>P.inv[k]).length;
 const bossesDead=()=>ST.frF===2&&ST.frD===2&&ST.frG===2&&ST.frS===2;
@@ -1203,6 +1233,20 @@ function questTalk(key,nome,introLines,checkFn,doneLines,reward){
 
 /* ---------- painéis (UI genérica) ---------- */
 let panelAberto=false;
+function updateScrollBtns(){
+  const sc=$("uiScroll");if(!sc)return;
+  const emCima=sc.scrollTop>18;
+  const podeDescer=sc.scrollTop + sc.clientHeight < sc.scrollHeight - 18;
+  $("uiUp").style.display=emCima?"flex":"none";
+  $("uiDown").style.display=podeDescer?"flex":"none";
+  $("uiHint").style.display=podeDescer?"block":"none";
+}
+function rolarUi(dir){
+  const sc=$("uiScroll");if(!sc)return;
+  const passo=Math.max(180,sc.clientHeight*0.75);
+  sc.scrollTop += dir*passo;
+  setTimeout(updateScrollBtns,320);
+}
 function openPanel(title,builder,tabs){
   panelAberto=true;
   $("uiTitle").textContent=title;
@@ -1210,6 +1254,8 @@ function openPanel(title,builder,tabs){
   if(tabs){for(const t of tabs){const b=document.createElement("button");b.textContent=t.label;
     if(t.on)b.className="on";b.onclick=t.fn;tb.appendChild(b);}}
   const l=$("uiList");l.innerHTML="";builder(l);
+  const sc=$("uiScroll");if(sc)sc.scrollTop=0;
+  setTimeout(updateScrollBtns,60);
   $("uiPanel").style.display="flex";
 }
 function row(l,html){const d=document.createElement("div");d.className="row";d.innerHTML=html;l.appendChild(d);return d;}
@@ -1373,6 +1419,8 @@ function openHall(){
   checarDiarias();
   openPanel("🏛️ Prefeitura",l=>{
     const pr=diariasProntas();
+    const rD=row(l,`<span><b style="color:#ffd857">📋 Diário de Missões</b><br><small>Ver a rota do jogo, missões e conquistas</small></span>`);
+    btn(rD,"Abrir",()=>openDiario(),"gold");
     const rd=row(l,`<span><b style="color:#ffd857">📅 Missões Diárias</b><br><small>${pr?pr+" pronta(s) para retirar!":"Três missões novas todo dia"}</small></span>`);
     btn(rd,pr?"🎁 Retirar":"Ver",()=>openDiarias(),pr?"gold":"");
     row(l,`<span><b>Mural de Missões</b></span>`);
@@ -1417,6 +1465,7 @@ function gainXP(n){P.xp+=n;
   while(P.xp>=xpNeed()&&P.lvl<40){P.xp-=xpNeed();P.lvl++;P.pts+=3;
     P.maxhp=30+P.lvl*6;P.hp=Math.min(P.maxhp,P.hp+15);
     P.maxmp=20+P.attrs.int*6;P.mp=P.maxmp;
+    checarConquistas();
     toast(`⭐ NÍVEL ${P.lvl}! +3 pontos de atributo (mochila → Atributos)`);
     addFloat(P.x,P.y-30,"NÍVEL "+P.lvl+"!","#ffd857",{size:6,dur:1.5,vy:-30,crit:true});
     addFloat(P.x,P.y-16,"+3 pontos","#8fd0ff",{size:3.6,dur:1.4,vy:-22});
@@ -1437,6 +1486,8 @@ addEventListener("keydown",e=>{if(typing())return;keys[e.key.toLowerCase()]=true
   if(e.key.toLowerCase()==="m"&&playing)bigMap=!bigMap;
   if(e.key.toLowerCase()==="l"&&!CS&&playing)openCodex();
   if(e.key==="Escape"||e.key.toLowerCase()==="p")togglePause();
+  if(e.key.toLowerCase()==="q"&&!CS&&playing)usarPocaoRapida();
+  if(e.key.toLowerCase()==="j"&&!CS&&playing)openDiario();
 });
 addEventListener("keyup",e=>{if(typing())return;keys[e.key.toLowerCase()]=false;});
 let joy={active:false,id:null,cx:0,cy:0,dx:0,dy:0,mag:0};
@@ -1481,6 +1532,7 @@ function hitEnemiesAt(x,y,r,dmg,poison){
       e.hp-=dmg;e.hitT=.18;hit=true;
       const boss=EDEF[e.type].boss;
       addFloat(e.x,e.y-16,(lastCrit?"":"")+Math.round(dmg),lastCrit?"#ffd857":"#ffffff",{crit:lastCrit});
+      if(dmg>(ST.dmgMax||0))ST.dmgMax=Math.round(dmg);
       if(lastCrit){addFloat(e.x,e.y-26,"CRÍTICO!","#ffd857",{size:3.2,dur:0.7,vy:-26});
         shake(5,0.18);stopHit(0.055);}
       else shake(boss?2.4:1.5,0.09);
@@ -1497,7 +1549,7 @@ function gatherAt(tx,ty){
   const t=gt(tx,ty);
   if(t===TR||t===PN||t===DT){
     st(tx,ty,groundOf(tx,ty));respawns.push({x:tx,y:ty,tile:t,t:70});
-    give("madeira",1+Math.floor(rnd()*2));if(rnd()<.3)give("erva",1);
+    const q=1+Math.floor(rnd()*2);give("madeira",q);ST.tot.mad+=q;if(rnd()<.3)give("erva",1);
     profXP("wood",4);progDiaria("cortar",1);
     if(ST.qs.lenha===1&&regionOf(tx,ty)==="floresta"){ST.q.lenha++;toast(`🌲 Árvore (${ST.q.lenha}/8) +🪵`);}else toast("+🪵");
     sfx(180,.06);return true;
@@ -1509,12 +1561,13 @@ function gatherAt(tx,ty){
   }
   if(t===RK||t===OR||t===OS){
     st(tx,ty,groundOf(tx,ty));respawns.push({x:tx,y:ty,tile:t,t:t===OS?110:90});
-    give("minerio",t===OS?2:1);
-    if(t===OR&&rnd()<.4)give("gema",1);
-    if(t===OS&&rnd()<.65)give("gema",1);
+    const qm=t===OS?2:1;give("minerio",qm);ST.tot.min+=qm;
+    if(t===OR&&rnd()<.4){give("gema",1);ST.tot.gem++;}
+    if(t===OS&&rnd()<.65){give("gema",1);ST.tot.gem++;}
     profXP("mine",t===OS?7:4);progDiaria("minerar",t===OS?2:1);
     if(t===OS||t===OR)progDiaria("gema",1);
     toast(t===OS?"+⛏️⛏️ Obsidiana +💎":(t===OR?"+⛏️ +💎?":"+⛏️ Minério"));
+    checarConquistas();
     sfx(t===OS?170:200,.07);return true;
   }
   return false;
@@ -1565,6 +1618,7 @@ function killEnemy(e){
   enemies.splice(enemies.indexOf(e),1);
   const d=EDEF[e.type];
   P.coins+=d.coin;
+  if(!d.arena)ST.k=(ST.k||0)+1;
   if(d.coin>0)addFloat(e.x+8,e.y-8,"+"+d.coin+"🪙","#ffd857",{size:3.4,dur:1,vy:-30});
   addFloat(e.x-8,e.y-2,"+"+d.xp+" XP","#7ee06d",{size:3.2,dur:1.05,vy:-26});
   if(d.boss){shake(11,0.55);stopHit(0.13);}else shake(2.6,0.12);
@@ -1582,6 +1636,7 @@ function killEnemy(e){
   else if(e.type==="fantasma"&&ST.qs.alma===1){ST.q.alma++;toast(`👻 (${ST.q.alma}/6)`);}
   else toast(`${d.nome} derrotado! +${d.coin}🪙 +${d.xp}XP`);
   if(!d.boss&&!d.arena)progDiaria("matar",1);
+  checarConquistas();
   // fragmentos dos chefes
   const bossFrag={goblinboss:["frF","fragF","🌲 FRAGMENTO DA FLORESTA"],esqueletoboss:["frD","fragD","🏜️ FRAGMENTO DO DESERTO"],dragaogelo:["frG","fragG","❄️ FRAGMENTO DO GELO"],imperador:["frS","fragS","🌑 FRAGMENTO SOMBRIO"]};
   if(bossFrag[e.type]){
@@ -1615,7 +1670,7 @@ function doInteract(){
   // pesca
   const [fx,fy]=facingVec();
   const tx=Math.floor((P.x+fx*16)/T),ty=Math.floor((P.y+fy*16)/T);
-  if(gt(tx,ty)===WA){give("peixe",1);profXP("pesca",5);progDiaria("pescar",1);toast("🎣 Pescou um peixe!");sfx(500,.1);return;}
+  if(gt(tx,ty)===WA){give("peixe",1);ST.tot.pei++;profXP("pesca",5);progDiaria("pescar",1);toast("🎣 Pescou um peixe!");sfx(500,.1);return;}
   toast("Nada por aqui... 💬 fale com NPCs ou entre nos prédios pelas portas.");
 }
 
@@ -1781,6 +1836,8 @@ function updateWorld(dt){
   updateHold(dt);
   updateFeedback(dt);
   musUpdate();
+  {const rg=regionOf(Math.floor(P.x/T),Math.floor(P.y/T));
+   if(ST.reinos&&ST.reinos[rg]===false){ST.reinos[rg]=true;checarConquistas();}}
   if(interior)return;
   for(let i=groundItems.length-1;i>=0;i--){
     const g=groundItems[i];
@@ -2622,6 +2679,21 @@ const CODEX=[
   uso:"Chegue perto carregando um fragmento e toque no botão dourado ✦ Depositar Fragmento.",
   dica:"Ao colocar os 4 fragmentos, O Vazio aparece — o verdadeiro vilão. 700 de vida, invoca aliados e atira.",
   tags:"pedestal nucleo astra fragmento depositar vazio final praca"},
+ {cat:"hist",n:"📋 Diário de Missões",
+  onde:"Botão 📋 dourado no canto direito da tela (ou tecla J). Também na Prefeitura e no ❓ Ajuda.",
+  uso:"Central de tudo o que você tem para fazer: a ROTA principal (12 etapas), as missões dos NPCs de reino, missões diárias e o link para as 36 conquistas.",
+  dica:"O botão fica com um NÚMERO VERMELHO piscando quando tem conquista para retirar ou missão diária pronta. Comece por aqui sempre que estiver perdido.",
+  tags:"diario missoes rota tarefas objetivos conquistas guia"},
+ {cat:"hist",n:"🏆 Conquistas",
+  onde:"Botão dentro do Diário de Missões (📋).",
+  uso:"36 conquistas divididas em 8 categorias: Combate, Exploração, Chefes, Coleta, Riqueza, Equipamento, Nível e Arena. Desbloqueiam sozinhas conforme você joga e dão moedas + gemas.",
+  dica:"A maior recompensa é 🕳️ Salvador de Aurora (500🪙 + 10💎) por derrotar o Vazio. Coletar tudo dá cerca de 3000 moedas extras.",
+  tags:"conquistas achievements troféus badges recompensas medalha"},
+ {cat:"hist",n:"🧪 Botão de poção rápida",
+  onde:"Botão vermelho 🧪 no canto direito, abaixo do ❓ Ajuda. Também com a tecla Q no computador.",
+  uso:"Toque nele e o herói bebe a melhor poção da mochila na hora, sem abrir menu. Usa Peixe Grande primeiro (12 HP), depois Poção de Vida (20 HP) e por último Peixe (5 HP).",
+  dica:"O botão FICA VERMELHO E PULSA quando sua vida está abaixo de 35% — não morra por esquecer de curar. Se ficar cinza, é porque acabaram as poções: compre na loja 🛒 ou faça na Alquimia (2 ervas cada).",
+  tags:"pocao rapida cura hp vida botao atalho curar potion heal quick"},
  {cat:"hist",n:"🛡️ Zona segura da praça",
   onde:"Vila Aurora — o círculo dourado tracejado ao redor da praça central.",
   uso:"Monstros NÃO conseguem entrar nessa área. É um refúgio seguro para pausar, curar e negociar com os NPCs sem ser interrompido.",
@@ -3972,6 +4044,183 @@ function drawPedestal(){
 $("btnFrag").addEventListener("pointerdown",e=>{e.preventDefault();e.stopPropagation();
   if(playing&&!CS&&!dlgOpen)depositFragment();});
 
+/* ---------- DIÁRIO DE MISSÕES (quadro central) ---------- */
+function openDiario(){
+  checarDiarias();
+  const et=etapaAtual();
+  const {feitas,total}=progressoRoteiro();
+  openPanel(`📋 Diário de Missões (${feitas}/${total})`,l=>{
+    // ===== ROTEIRO PRINCIPAL =====
+    row(l,`<span style="color:#ffd857;font-weight:bold;font-size:14px">🎯 ROTA PRINCIPAL</span>`);
+    if(!et){
+      row(l,`<span style="color:#5ee06d;font-weight:bold">🎉 VOCÊ SALVOU AURORA!<br><small>Todas as etapas concluídas.</small></span>`);
+    } else {
+      row(l,`<span style="background:#2f6fc6;padding:4px 8px;border-radius:6px;display:inline-block">📍 <b>AGORA:</b> ${et.nome}</span><br><small style="opacity:.85">${et.detalhe}</small>`);
+      // barra de progresso
+      const pct=Math.round(feitas/total*100);
+      row(l,`<div style="width:100%;height:14px;background:#0f1218;border:2px solid #000;border-radius:6px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#3fa32f,#ffd857)"></div>
+      </div><small style="opacity:.7">${feitas} de ${total} etapas · ${pct}%</small>`);
+    }
+    // lista das próximas 4 etapas
+    row(l,`<span style="color:#8fa4c0;font-size:11px;font-weight:bold">📜 Etapas do jogo:</span>`);
+    for(let i=0;i<ROTEIRO.length;i++){
+      const e=ROTEIRO[i], ok=e.ok(), atual=(e===et);
+      let ic="⬜", cor="";
+      if(ok){ic="✅";cor="opacity:.5";}
+      else if(atual){ic="▶";cor="color:#ffd857;font-weight:bold";}
+      row(l,`<span style="${cor}">${ic} ${e.nome}</span>`);
+    }
+    // ===== MISSÕES DE NPCs =====
+    row(l,`<span style="color:#ffd857;font-weight:bold;font-size:14px;margin-top:10px">👥 MISSÕES SECUNDÁRIAS</span>`);
+    const qs=[
+      {k:"lenha",   npc:"Guardiã Lira (Floresta)",  meta:8, cur:()=>ST.q.lenha||0, o:"leste da vila até a Floresta"},
+      {k:"cactos",  npc:"Beduíno Rashid (Deserto)", meta:6, cur:()=>ST.q.cactos||0,o:"leste até o Deserto"},
+      {k:"gelo",    npc:"Caçadora Yuki (Gelo)",     meta:6, cur:()=>ST.q.gelo||0,  o:"norte até a Terra de Gelo"},
+      {k:"alma",    npc:"Exilado Morvan (Sombrio)", meta:6, cur:()=>ST.q.alma||0,  o:"sul até o Reino Sombrio"},
+    ];
+    let hasQ=false;
+    for(const q of qs){
+      const st=ST.qs[q.k]||0;
+      hasQ=true;
+      if(st===2){row(l,`<span style="opacity:.5">✅ ${q.npc}</span>`);}
+      else if(st===1){row(l,`<span>📜 <b>${q.npc}</b><br><small>Progresso: ${q.cur()}/${q.meta}</small></span>`);}
+      else {row(l,`<span style="opacity:.7">⬜ ${q.npc}<br><small>Vá ${q.o} e fale com ele</small></span>`);}
+    }
+    // ===== DIÁRIAS =====
+    row(l,`<span style="color:#ffd857;font-weight:bold;font-size:14px;margin-top:10px">📅 MISSÕES DIÁRIAS</span>`);
+    const pr=diariasProntas();
+    if(pr){
+      row(l,`<span style="background:#c69a2f;padding:3px 8px;border-radius:5px">🎁 ${pr} pronta(s)! Retire na Prefeitura 🏛️</span>`);
+    }
+    if(ST.diarias){
+      for(const m of ST.diarias){
+        const def=DIARIAS.find(d=>d.id===m.id);
+        const pronta=m.feito>=m.n;
+        const ic=m.pago?"✅":(pronta?"🎁":"📜");
+        row(l,`<span style="${m.pago?"opacity:.4":""}">${ic} ${def.nome.replace("{n}",m.n)}<br><small>${Math.min(m.feito,m.n)}/${m.n}${!m.pago?" · "+def.moedas+"🪙":""}</small></span>`);
+      }
+    }
+    // ===== CONQUISTAS =====
+    row(l,`<span style="color:#ffd857;font-weight:bold;font-size:14px;margin-top:10px">🏆 CONQUISTAS (${conquistasFeitas()}/${ACHIEVES.length})</span>`);
+    const rc=row(l,`<span>Ver todas as ${ACHIEVES.length} conquistas do jogo</span>`);
+    btn(rc,"Abrir",()=>openConquistas(),"gold");
+  });
+}
+
+/* ---------- ROTEIRO principal (rota do jogo) ---------- */
+// Cada etapa vira "cumprida" sozinha conforme o jogador avança
+const ROTEIRO=[
+  {id:"lvl3",  nome:"Alcance o nível 3",          detalhe:"Derrote monstros perto da vila para ganhar XP.", ok:()=>P.lvl>=3, dica:()=>({x:52*T,y:80*T,label:"⚔️ Derrote goblins"})},
+  {id:"cls",   nome:"Escolha sua classe",         detalhe:"Fale com o Mestre de Classes na praça de Aurora.",ok:()=>!!P.cls, dica:()=>({x:76*T,y:84*T,label:"✨ Mestre de Classes"})},
+  {id:"lvl6",  nome:"Alcance o nível 6",          detalhe:"Prepare-se para o primeiro chefe. Compre poções!", ok:()=>P.lvl>=6, dica:()=>({x:74*T,y:80*T,label:"🛒 Loja de Aurora"})},
+  {id:"fragF", nome:"Derrote o Rei Goblin",       detalhe:"Ele está a SUDOESTE, na Floresta. Traz o fragmento verde.", ok:()=>(P.inv.fragF||0)>0||ST.placedList.includes("fragF"), dica:()=>({x:30*T,y:110*T,label:"👑 Rei Goblin (floresta)"})},
+  {id:"depF",  nome:"Deposite o Fragmento da Floresta", detalhe:"Volte à praça e coloque no pedestal do Núcleo.", ok:()=>ST.placedList.includes("fragF"), dica:()=>({x:80*T,y:76*T,label:"✦ Pedestal do Núcleo"})},
+  {id:"fragD", nome:"Derrote o Rei Esqueleto",    detalhe:"Domina o SUDESTE do Deserto. Cuidado com a chuva de ossos.", ok:()=>(P.inv.fragD||0)>0||ST.placedList.includes("fragD"), dica:()=>({x:130*T,y:110*T,label:"💀 Rei Esqueleto (deserto)"})},
+  {id:"depD",  nome:"Deposite o Fragmento do Deserto", detalhe:"Volte ao pedestal em Aurora.", ok:()=>ST.placedList.includes("fragD"), dica:()=>({x:80*T,y:76*T,label:"✦ Pedestal do Núcleo"})},
+  {id:"fragG", nome:"Derrote o Dragão de Gelo",   detalhe:"Vive no NOROESTE da Terra de Gelo. Traga poções extras.", ok:()=>(P.inv.fragG||0)>0||ST.placedList.includes("fragG"), dica:()=>({x:30*T,y:40*T,label:"🐉 Dragão de Gelo"})},
+  {id:"depG",  nome:"Deposite o Fragmento do Gelo", detalhe:"Volte ao pedestal em Aurora.", ok:()=>ST.placedList.includes("fragG"), dica:()=>({x:80*T,y:76*T,label:"✦ Pedestal do Núcleo"})},
+  {id:"fragS", nome:"Derrote o Imperador Sombrio",detalhe:"Trona no SUDESTE do Reino Sombrio. O mais forte dos quatro.", ok:()=>(P.inv.fragS||0)>0||ST.placedList.includes("fragS"), dica:()=>({x:130*T,y:130*T,label:"👑 Imperador Sombrio"})},
+  {id:"depS",  nome:"Deposite o último fragmento",detalhe:"Todos os 4 no pedestal — O Vazio despertará.", ok:()=>ST.placedList.includes("fragS"), dica:()=>({x:80*T,y:76*T,label:"✦ Pedestal do Núcleo"})},
+  {id:"vazio", nome:"Derrote O VAZIO",            detalhe:"O confronto final. Recomendado: nível 20+, arma Astra ou melhor.", ok:()=>ST.vazio===2, dica:()=>({x:80*T,y:76*T,label:"🕳️ O Vazio"})},
+];
+function etapaAtual(){
+  for(const e of ROTEIRO){if(!e.ok())return e;}
+  return null;
+}
+function progressoRoteiro(){
+  let feitas=0;for(const e of ROTEIRO)if(e.ok())feitas++;
+  return {feitas,total:ROTEIRO.length};
+}
+
+/* ---------- CONQUISTAS ---------- */
+const ACHIEVES=[
+  // combate
+  {id:"1kill",   n:"⚔️ Primeiro Sangue",       d:"Derrote seu primeiro monstro",       ok:()=>ST.k>=1,           r:{coin:5}},
+  {id:"10kill",  n:"🗡️ Aprendiz",              d:"Derrote 10 monstros",                ok:()=>ST.k>=10,          r:{coin:20}},
+  {id:"50kill",  n:"⚔️ Caçador",               d:"Derrote 50 monstros",                ok:()=>ST.k>=50,          r:{coin:60,gema:1}},
+  {id:"200kill", n:"💀 Exterminador",           d:"Derrote 200 monstros",               ok:()=>ST.k>=200,         r:{coin:200,gema:3}},
+  {id:"crit",    n:"⭐ Golpe Certeiro",         d:"Cause 100 de dano em um único golpe",ok:()=>ST.dmgMax>=100,    r:{coin:40}},
+  // exploração
+  {id:"floresta",n:"🌲 Aventureiro (Floresta)",d:"Entre no Reino da Floresta",         ok:()=>ST.reinos.floresta,r:{coin:20}},
+  {id:"gelo",    n:"❄️ Aventureiro (Gelo)",    d:"Entre na Terra de Gelo",             ok:()=>ST.reinos.gelo,    r:{coin:20}},
+  {id:"deserto", n:"🏜️ Aventureiro (Deserto)", d:"Entre no Deserto Ardente",           ok:()=>ST.reinos.deserto, r:{coin:20}},
+  {id:"sombrio", n:"🌑 Aventureiro (Sombrio)", d:"Entre no Reino Sombrio",             ok:()=>ST.reinos.sombrio, r:{coin:20}},
+  {id:"mundo",   n:"🗺️ Explorador do Mundo",   d:"Visite os 4 reinos",                 ok:()=>ST.reinos.floresta&&ST.reinos.gelo&&ST.reinos.deserto&&ST.reinos.sombrio, r:{coin:80,gema:2}},
+  // chefes
+  {id:"bossF",   n:"👑 Fim do Rei Goblin",     d:"Derrote o Rei Goblin",               ok:()=>ST.placedList.includes("fragF"), r:{coin:100}},
+  {id:"bossD",   n:"💀 Fim do Rei Esqueleto",  d:"Derrote o Rei Esqueleto",            ok:()=>ST.placedList.includes("fragD"), r:{coin:100}},
+  {id:"bossG",   n:"🐉 Fim do Dragão",         d:"Derrote o Dragão de Gelo",           ok:()=>ST.placedList.includes("fragG"), r:{coin:100}},
+  {id:"bossS",   n:"👑 Fim do Imperador",      d:"Derrote o Imperador Sombrio",        ok:()=>ST.placedList.includes("fragS"), r:{coin:100}},
+  {id:"vazio",   n:"🕳️ Salvador de Aurora",    d:"Derrote O Vazio e restaure o Núcleo Astra",ok:()=>ST.vazio===2, r:{coin:500,gema:10}},
+  // profissão / coleta
+  {id:"mad50",   n:"🪓 Lenhador",              d:"Colete 50 madeiras",                 ok:()=>ST.tot.mad>=50,    r:{coin:30}},
+  {id:"min50",   n:"⛏️ Minerador",             d:"Colete 50 minérios",                 ok:()=>ST.tot.min>=50,    r:{coin:30}},
+  {id:"gem20",   n:"💎 Colecionador de Gemas", d:"Colete 20 gemas",                    ok:()=>ST.tot.gem>=20,    r:{coin:60}},
+  {id:"pesca30", n:"🎣 Pescador",              d:"Pesque 30 peixes",                   ok:()=>ST.tot.pei>=30,    r:{coin:40}},
+  // economia
+  {id:"coin500", n:"💰 Comerciante",           d:"Tenha 500 moedas ao mesmo tempo",    ok:()=>P.coins>=500,      r:{coin:50}},
+  {id:"coin2k",  n:"🪙 Barão",                 d:"Tenha 2000 moedas ao mesmo tempo",   ok:()=>P.coins>=2000,     r:{coin:150,gema:2}},
+  {id:"casa",    n:"🏠 Meu lar",               d:"Compre a casa",                      ok:()=>!!ST.house,        r:{coin:80}},
+  {id:"pet",     n:"🐾 Companheiro",           d:"Adote um pet",                       ok:()=>!!P.pet,           r:{coin:40}},
+  {id:"mount",   n:"🐴 Cavaleiro",             d:"Compre uma montaria",                ok:()=>!!P.mount,         r:{coin:60}},
+  // equipamento
+  {id:"aco",     n:"⚔️ Armado",                d:"Empunhe a Espada de Aço",            ok:()=>P.wt>=2,           r:{coin:40}},
+  {id:"astra",   n:"✦ Espada Astra",           d:"Forje a Espada Astra",               ok:()=>P.wt>=4,           r:{coin:100,gema:2}},
+  {id:"celest",  n:"🌟 Espada Celestial",      d:"Forje a arma mais poderosa",         ok:()=>P.wt>=5,           r:{coin:300,gema:5}},
+  {id:"armFer",  n:"🛡️ Blindado",              d:"Vista as Placas de Ferro",           ok:()=>(P.arm||0)>=3,     r:{coin:60}},
+  {id:"armCel",  n:"👑 Armadura Celestial",    d:"Vista a armadura suprema",           ok:()=>(P.arm||0)>=5,     r:{coin:300,gema:5}},
+  {id:"upg20",   n:"⚒️ Perfeição",             d:"Refine sua arma até +20",            ok:()=>P.upg>=20,         r:{coin:200,gema:3}},
+  // nível
+  {id:"lvl10",   n:"⭐ Veterano",              d:"Alcance o nível 10",                 ok:()=>P.lvl>=10,         r:{coin:60}},
+  {id:"lvl20",   n:"🌟 Herói",                 d:"Alcance o nível 20",                 ok:()=>P.lvl>=20,         r:{coin:150}},
+  {id:"lvl40",   n:"✨ Lenda",                 d:"Alcance o nível MÁXIMO",             ok:()=>P.lvl>=40,         r:{coin:500,gema:10}},
+  // arena
+  {id:"arena5",  n:"🏟️ Duelista",              d:"Vença 5 duelos na arena",            ok:()=>ST.arenaWins>=5,   r:{coin:80}},
+  {id:"ondas5",  n:"🔥 Sobrevivente",          d:"Chegue à onda 5 na Arena Infinita",  ok:()=>ST.recorde>=5,     r:{coin:100}},
+  {id:"ondas15", n:"🌋 Gladiador",             d:"Chegue à onda 15 na Arena Infinita", ok:()=>ST.recorde>=15,    r:{coin:300,gema:3}},
+];
+function conquistasFeitas(){return ACHIEVES.filter(a=>ST.achv[a.id]).length;}
+function conquistasPendentes(){return ACHIEVES.filter(a=>a.ok()&&!ST.achv[a.id]).length;}
+function checarConquistas(){
+  for(const a of ACHIEVES){
+    if(a.ok()&&!ST.achv[a.id]){
+      ST.achv[a.id]=1;
+      toast("🏆 "+a.n);
+      sfx(760,.12);setTimeout(()=>sfx(980,.14),100);
+      if(a.r){
+        if(a.r.coin){P.coins+=a.r.coin;addFloat(P.x,P.y-24,"+"+a.r.coin+"🪙","#ffd857",{size:4.2,dur:1.2,crit:true});}
+        if(a.r.gema){give("gema",a.r.gema);addFloat(P.x,P.y-38,"+"+a.r.gema+"💎","#c84af0",{size:4,dur:1.2,crit:true});}
+      }
+    }
+  }
+}
+function openConquistas(){
+  const feitas=conquistasFeitas(),total=ACHIEVES.length;
+  openPanel(`🏆 Conquistas (${feitas}/${total})`,l=>{
+    row(l,`<span style="opacity:.75;font-size:11px">Cada conquista dá moedas e às vezes gemas. Elas são desbloqueadas automaticamente conforme você joga.</span>`);
+    const cats=[
+      {t:"⚔️ Combate",ids:["1kill","10kill","50kill","200kill","crit"]},
+      {t:"🗺️ Exploração",ids:["floresta","gelo","deserto","sombrio","mundo"]},
+      {t:"👑 Chefes",ids:["bossF","bossD","bossG","bossS","vazio"]},
+      {t:"🎣 Coleta",ids:["mad50","min50","gem20","pesca30"]},
+      {t:"💰 Riqueza",ids:["coin500","coin2k","casa","pet","mount"]},
+      {t:"⚔️ Equipamento",ids:["aco","astra","celest","armFer","armCel","upg20"]},
+      {t:"⭐ Nível",ids:["lvl10","lvl20","lvl40"]},
+      {t:"🏟️ Arena",ids:["arena5","ondas5","ondas15"]},
+    ];
+    for(const c of cats){
+      row(l,`<span style="color:#ffd857;font-weight:bold">${c.t}</span>`);
+      for(const id of c.ids){
+        const a=ACHIEVES.find(x=>x.id===id);if(!a)continue;
+        const feita=ST.achv[a.id];
+        const rec=(a.r.coin?a.r.coin+"🪙":"")+(a.r.gema?" +"+a.r.gema+"💎":"");
+        row(l,`<span>${feita?"✅ ":"⬜ "}<b style="${feita?"color:#5ee06d":""}">${a.n}</b><br><small>${a.d} · recompensa: ${rec}</small></span>`);
+      }
+    }
+  });
+}
+
 /* ---------- missões diárias ---------- */
 const DIARIAS=[
   {id:"matar",  nome:"⚔️ Derrote {n} monstros",         alvo:[8,14],  moedas:60, gemas:0},
@@ -4141,7 +4390,7 @@ function importSave(){
 /* ---------- configuração do HUD ---------- */
 const HUDKEY="givas_frontier_hud";
 const HUDCFG={barras:true,minimapa:true,missao:true,objetivo:true,seta:true,nomes:true,
-  ajuda:true,retorno:true,clima:true,som:true,tremida:true,dano:true,contorno:false,musica:true,musVol:0.7,sfxVol:0.9,tam:1,pos:{}};
+  ajuda:true,retorno:true,pocao:true,diario:true,clima:true,som:true,tremida:true,dano:true,contorno:false,musica:true,musVol:0.7,sfxVol:0.9,tam:1,pos:{}};
 const BTNBASE={btnAtk:[70,28],btnSkill:[54,22],btnAct:[56,22],btnBag:[50,20]};
 function loadHud(){try{const r=localStorage.getItem(HUDKEY);
   if(r)Object.assign(HUDCFG,JSON.parse(r));}catch(e){}}
@@ -4153,6 +4402,8 @@ function applyHud(){
   set("questHint",HUDCFG.missao);
   set("btnHelp",HUDCFG.ajuda);
   set("btnHome",HUDCFG.retorno);
+  set("btnPot",HUDCFG.pocao);
+  set("btnDiario",HUDCFG.diario);
   if(!HUDCFG.retorno)stopHold();
   if(!HUDCFG.objetivo)$("objBanner").style.display="none";
   if(!hudEdit)applyBtnPos();
@@ -4220,6 +4471,8 @@ function openHudCfg(){
     tog("nomes","🏷️ Nomes dos personagens","Sobre você e os NPCs (chefes sempre aparecem)");
     tog("ajuda","❓ Botão de ajuda","");
     tog("retorno","🌀 Pedra de retorno","Botão de voltar para a vila");
+    tog("pocao","🧪 Poção rápida","Botão para beber a melhor poção sem abrir a mochila");
+    tog("diario","📋 Diário de missões","Botão de acesso rápido ao Diário");
     tog("dano","💥 Números de dano","Mostra o dano causado e recebido");
     tog("tremida","📳 Tremida de tela","Impacto nos golpes e críticos");
     tog("contorno","🚧 Marcar obstáculos","Pinta a base do que bloqueia passagem — ajuda muito no Reino Sombrio");
@@ -4237,13 +4490,13 @@ function openHudCfg(){
     }
     const rr=row(l,`<span><b>↺ Restaurar padrão</b></span>`);
     btn(rr,"Restaurar",()=>{Object.assign(HUDCFG,{barras:true,minimapa:true,missao:true,objetivo:true,
-      seta:true,nomes:true,ajuda:true,retorno:true,clima:true,som:true,tremida:true,dano:true,contorno:false,musica:true,musVol:0.7,sfxVol:0.9,tam:1,pos:{}});applyHud();applyBtnPos();openHudCfg();},"sell");
+      seta:true,nomes:true,ajuda:true,retorno:true,pocao:true,diario:true,clima:true,som:true,tremida:true,dano:true,contorno:false,musica:true,musVol:0.7,sfxVol:0.9,tam:1,pos:{}});applyHud();applyBtnPos();openHudCfg();},"sell");
   });
 }
 
 /* ---------- mover botões na tela ---------- */
 const MOVABLE={btnAtk:"⚔️ Atacar",btnSkill:"✨ Habilidade",btnAct:"💬 Ação",btnBag:"🎒 Mochila",
-  btnHelp:"❓ Ajuda",btnHome:"🌀 Retorno",miniWrap:"🗺️ Minimapa",hudTop:"❤️ Barras"};
+  btnPot:"🧪 Poção rápida",btnDiario:"📋 Diário",btnHelp:"❓ Ajuda",btnHome:"🌀 Retorno",miniWrap:"🗺️ Minimapa",hudTop:"❤️ Barras"};
 let hudEdit=false,dragEl=null,dragOff=[0,0];
 function applyBtnPos(){
   const pos=HUDCFG.pos||{};
@@ -4300,6 +4553,10 @@ function initHudDrag(){
     el.addEventListener("pointerup",up,true);
     el.addEventListener("pointercancel",up,true);
   }
+  {const bd=$("btnDiario");
+   if(bd)bd.addEventListener("pointerdown",e=>{if(hudEdit)return;e.preventDefault();e.stopPropagation();if(playing&&!CS&&!dlgOpen)openDiario();});}
+  {const b=$("btnPot");
+   if(b){b.addEventListener("pointerdown",e=>{if(hudEdit)return;e.preventDefault();e.stopPropagation();usarPocaoRapida();});}}
   $("btnPause").addEventListener("pointerdown",e=>{if(hudEdit)return;e.preventDefault();togglePause();});
   $("pgResume").addEventListener("click",()=>setPause(false));
   {const pv=$("pauseVol");
@@ -4311,6 +4568,54 @@ function initHudDrag(){
   $("pgSave").addEventListener("click",()=>{setPause(false);exportSave();});
   $("edSave").addEventListener("click",()=>{saveHud();endHudEdit();toast("✅ Posições salvas!");});
   $("edReset").addEventListener("click",()=>{resetBtnPos();toast("↺ Posições restauradas");});
+}
+
+/* ---------- botão rápido de poção ---------- */
+// prioridade: peixe grande > poção > peixe pequeno. Só cura HP.
+const POT_ITENS=[
+  ["peixeG","🐟",12],
+  ["pocao","🧪",20],
+  ["peixe","🐠",5],
+];
+function melhorPocao(){
+  for(const [k,ic,cura] of POT_ITENS){
+    if((P.inv[k]||0)>0)return {k,ic,cura};
+  }
+  return null;
+}
+function totalPocoes(){
+  let n=0;for(const [k] of POT_ITENS)n+=(P.inv[k]||0);return n;
+}
+function usarPocaoRapida(){
+  if(!playing||CS||dlgOpen||prologo||interior||paused)return;
+  if(P.dead)return;
+  const p=melhorPocao();
+  if(!p){toast("Sem poções! Compre na loja 🛒");sfx(200,.1);return;}
+  if(P.hp>=P.maxhp){toast("Vida já cheia!");return;}
+  if(take(p.k,1)){
+    P.hp=Math.min(P.maxhp,P.hp+p.cura);
+    addFloat(P.x,P.y-18,"+"+p.cura+"❤️","#5ee06d",{size:4.6,dur:1,vy:-30});
+    sfx(700,.1);setTimeout(()=>sfx(900,.08),90);
+    atualizarBtnPot();updateHUD();
+  }
+}
+function atualizarBtnDiario(){
+  const b=$("btnDiarioBadge");if(!b)return;
+  const pend=conquistasPendentes()+diariasProntas();
+  if(pend>0){b.textContent=pend;b.className="badge on";}
+  else{b.className="badge";}
+}
+function atualizarBtnPot(){
+  const el=$("btnPot");if(!el)return;
+  const p=melhorPocao();
+  const q=totalPocoes();
+  const perigo=P.hp>0&&P.hp/P.maxhp<0.35;
+  el.classList.toggle("vazio",!p);
+  el.classList.toggle("pisca",!!p&&perigo);
+  const ic=el.firstChild;
+  if(ic&&ic.nodeType===3)ic.data=p?p.ic:"🧪";
+  else el.innerHTML=(p?p.ic:"🧪")+`<span class="qtd" id="btnPotQtd">${q}</span>`;
+  const qEl=$("btnPotQtd");if(qEl)qEl.textContent=q;
 }
 
 /* ---------- pedra de retorno (anti-travamento) ---------- */
@@ -4380,6 +4685,8 @@ function currentObjective(){
   if(ST.vazio===1){const v=enemies.find(e=>e.type==="vazio");
     return v?{x:v.x,y:v.y,label:"🌑 Derrote O Vazio!"}:null;}
   if(!P.cls&&P.lvl>=3)return{x:76*T,y:84*T,label:"✨ Escolha sua classe com o Mestre"};
+  const et=etapaAtual();
+  if(et){const d=et.dica();if(d)return d;}
   if(P.lvl<3){
     let alvo=null,md=1e9;
     for(const e of enemies){
@@ -4474,6 +4781,8 @@ function openHelp(){
       • Morrer custa 10% das moedas — leve poções!<br>
       • Compre a 🏠 casa para renascer nela e dormir de graça<br>
       • Pets 🐾 lutam com você e sobem de nível</span>`);
+    const rDh=row(l,`<span><b style="color:#ffd857">📋 Diário de Missões</b><br><small>Ver o que fazer, missões pendentes e todas as conquistas</small></span>`);
+    btn(rDh,"Abrir",()=>{closePanels();openDiario();},"gold");
     const re=row(l,`<span><b style="color:#ff6b5e">🔧 Se travou?</b><br><small>Apaga o save e volta ao menu inicial</small></span>`);
     btn(re,"Resetar tudo",()=>{if(confirm("Apaga TODO o progresso. Certeza?")){try{localStorage.clear();}catch(e){}location.reload();}},"sell");
     const rb=row(l,`<span><b style="color:#ffd857">💾 Backup do save</b><br><small>Gere um código para não perder o progresso se trocar de celular</small></span>`);
@@ -4492,6 +4801,8 @@ $("btnHelp").addEventListener("pointerdown",e=>{if(hudEdit)return;e.preventDefau
 
 /* ---------- HUD ---------- */
 function updateHUD(){
+  atualizarBtnPot();
+  atualizarBtnDiario();
   $("hpFill").style.width=(P.hp/P.maxhp*100)+"%";
   $("hpTxt").textContent=`❤️ ${Math.ceil(P.hp)}/${P.maxhp}`;
   $("mpFill").style.width=(P.mp/P.maxmp*100)+"%";
@@ -4601,6 +4912,7 @@ $("btnPlay").addEventListener("pointerdown",()=>{
 /* ---------- loop ---------- */
 let last=0;
 let fpsAvg=60,fpsBad=0,degradado=false;
+let achvTick=0;
 function degradar(){
   if(degradado)return;
   degradado=true;
@@ -4615,6 +4927,7 @@ function loop(ts){
   fpsAvg=fpsAvg*0.94+fps*0.06;
   if(fpsAvg<22)fpsBad++;else fpsBad=Math.max(0,fpsBad-1);
   if(fpsBad>90&&!degradado)degradar();
+  achvTick+=dt;if(achvTick>3){achvTick=0;if(playing&&!CS&&ST.achv)checarConquistas();}
   if(hitStop>0){hitStop=Math.max(0,hitStop-dt);dt*=0.16;}
   if(prologo){updatePrologo(dt);renderPrologo();requestAnimationFrame(loop);return;}
   if(playing&&!paused){
