@@ -186,12 +186,23 @@
 <div id="chapCard"><div id="chapSmall"></div><div id="chapBig"></div></div>
 <div class="panel" id="uiPanel"><div class="panelBox"><h2 id="uiTitle"></h2><div class="tabs" id="uiTabs"></div><div id="uiList"></div><button class="closeBtn" onclick="closePanels()">Fechar</button></div></div>
 
+<div id="crashScreen" style="display:none;position:fixed;inset:0;z-index:9999;background:#101318;color:#e8ecf4;padding:16px;overflow:auto;font-family:monospace;font-size:12px;">
+  <h2 style="color:#ff6b5e;font-size:16px;margin-bottom:8px;">⚠️ O jogo travou</h2>
+  <p style="color:#ffd857;margin-bottom:8px;">Copie o erro abaixo e mande para o dev — assim ele consegue corrigir.</p>
+  <div id="crashText" style="background:#000;padding:10px;border-radius:6px;user-select:text;-webkit-user-select:text;word-break:break-all;white-space:pre-wrap;"></div>
+  <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+    <button id="crashCopy" style="background:#2f6fc6;color:#fff;border:none;padding:10px 14px;border-radius:6px;font-family:inherit;font-weight:bold;">📋 Copiar erro</button>
+    <button id="crashReset" style="background:#8a3a3a;color:#fff;border:none;padding:10px 14px;border-radius:6px;font-family:inherit;font-weight:bold;">↻ Apagar tudo e reiniciar</button>
+    <button id="crashClose" style="background:#5a6270;color:#fff;border:none;padding:10px 14px;border-radius:6px;font-family:inherit;font-weight:bold;">Tentar continuar</button>
+  </div>
+</div>
 <div id="menu">
   <div id="menuTitle">GIVAS FRONTIER</div>
   <div id="menuSub">O NÚCLEO ASTRA SE PARTIU</div>
   <button class="menuBtn" id="btnContinue">▶ Continuar</button>
   <button class="menuBtn" id="btnNew">✦ Novo Jogo</button>
   <button class="menuBtn" id="btnRestore" style="background:#5a6270;font-size:13px">📥 Restaurar backup</button>
+  <button class="menuBtn" id="btnFullReset" style="background:#8a3a3a;font-size:12px">🔧 Resetar tudo (se travou)</button>
 </div>
 <div id="editor">
   <h2 style="color:#8fd0ff">Crie seu personagem</h2>
@@ -209,6 +220,44 @@ function rnd(){_seed=(_seed*1103515245+12345)&0x7fffffff;return _seed/0x7fffffff
 const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
 const dist=(ax,ay,bx,by)=>Math.hypot(ax-bx,ay-by);
 const $=id=>document.getElementById(id);
+function mostraCrash(txt){
+  try{
+    const el=$("crashText");if(!el)return;
+    const raw=String(txt||"erro desconhecido");
+    const sav=localStorage.getItem("givas_frontier_v1");
+    const versao=(navigator&&navigator.userAgent)||"?";
+    el.textContent=raw+"\n\n---\nUA: "+versao+"\ntamanho do save: "+(sav?sav.length:0);
+    $("crashScreen").style.display="block";
+    localStorage.setItem("givas_frontier_lasterr",raw.slice(0,4000));
+  }catch(e){}
+}
+window.addEventListener("error",e=>{
+  const msg=(e.error&&e.error.stack)||e.message||String(e);
+  mostraCrash(msg);
+});
+window.addEventListener("unhandledrejection",e=>{
+  mostraCrash("promise rejeitada: "+((e.reason&&e.reason.stack)||e.reason||e));
+});
+document.addEventListener("DOMContentLoaded",()=>{
+  const el=$("crashCopy");if(!el)return;
+  el.addEventListener("click",()=>{
+    const t=$("crashText").textContent;
+    try{navigator.clipboard.writeText(t);el.textContent="✅ Copiado!";}
+    catch(e){const s2=document.createElement("textarea");s2.value=t;document.body.appendChild(s2);s2.select();
+      try{document.execCommand("copy");el.textContent="✅ Copiado!";}catch(e2){}s2.remove();}
+  });
+  $("crashReset").addEventListener("click",()=>{
+    if(!confirm("Isso apaga TODO o progresso. Certeza?"))return;
+    try{localStorage.clear();}catch(e){}
+    location.reload();
+  });
+  $("crashClose").addEventListener("click",()=>{$("crashScreen").style.display="none";});
+  const err=localStorage.getItem("givas_frontier_lasterr");
+  if(err){
+    console.log("[último erro salvo]",err);
+    localStorage.removeItem("givas_frontier_lasterr");
+  }
+});
 
 /* ---------- mapa ---------- */
 const T=16,MW=160,MH=160;
@@ -554,7 +603,9 @@ function drawAoes(){
 
 /* ---------- feedback de combate ---------- */
 let floaters=[],shakeT=0,shakeMag=0,shakeDur=0.001,hitStop=0,lastCrit=false;
+const MAX_FLOATERS=40;
 function addFloat(x,y,txt,col,o){o=o||{};
+  if(floaters.length>MAX_FLOATERS)floaters.splice(0,floaters.length-MAX_FLOATERS+1);
   floaters.push({x:x+(-4+Math.random()*8),y,txt,col,t:0,dur:o.dur||0.85,
     vy:o.vy||-38,vx:o.vx||(-14+Math.random()*28),size:o.size||4.2,crit:!!o.crit});}
 function shake(mag,dur){if(!HUDCFG.tremida)return;
@@ -4383,6 +4434,8 @@ function openHelp(){
       • Morrer custa 10% das moedas — leve poções!<br>
       • Compre a 🏠 casa para renascer nela e dormir de graça<br>
       • Pets 🐾 lutam com você e sobem de nível</span>`);
+    const re=row(l,`<span><b style="color:#ff6b5e">🔧 Se travou?</b><br><small>Apaga o save e volta ao menu inicial</small></span>`);
+    btn(re,"Resetar tudo",()=>{if(confirm("Apaga TODO o progresso. Certeza?")){try{localStorage.clear();}catch(e){}location.reload();}},"sell");
     const rb=row(l,`<span><b style="color:#ffd857">💾 Backup do save</b><br><small>Gere um código para não perder o progresso se trocar de celular</small></span>`);
     btn(rb,"Gerar",()=>exportSave(),"gold");
     const rg=row(l,`<span><b style="color:#ffd857">⚙️ Configurar HUD</b><br><small>Ligar/desligar partes da tela e mudar o tamanho dos botões</small></span>`);
@@ -4496,6 +4549,7 @@ $("btnNew").addEventListener("pointerdown",()=>{
   buildEditor();
 });
 $("btnRestore").addEventListener("pointerdown",e=>{e.preventDefault();importSave();});
+$("btnFullReset").addEventListener("pointerdown",e=>{e.preventDefault();if(confirm("Apaga TODO o progresso. Certeza?")){try{localStorage.clear();}catch(e2){}location.reload();}});
 $("btnPlay").addEventListener("pointerdown",()=>{
   const nm=($("nameIn").value||"").trim();
   P.name=nm||"Givas";
@@ -4506,8 +4560,21 @@ $("btnPlay").addEventListener("pointerdown",()=>{
 
 /* ---------- loop ---------- */
 let last=0;
+let fpsAvg=60,fpsBad=0,degradado=false;
+function degradar(){
+  if(degradado)return;
+  degradado=true;
+  HUDCFG.clima=false;HUDCFG.tremida=false;
+  aoes.length=0;floaters.length=0;
+  console.warn("[degradado] efeitos desligados por FPS baixo");
+  try{toast("⚠️ Efeitos reduzidos (celular carregado)");}catch(e){}
+}
 function loop(ts){
   let dt=Math.min(.05,(ts-last)/1000)||0;last=ts;
+  const fps=dt>0?1/dt:60;
+  fpsAvg=fpsAvg*0.94+fps*0.06;
+  if(fpsAvg<22)fpsBad++;else fpsBad=Math.max(0,fpsBad-1);
+  if(fpsBad>90&&!degradado)degradar();
   if(hitStop>0){hitStop=Math.max(0,hitStop-dt);dt*=0.16;}
   if(prologo){updatePrologo(dt);renderPrologo();requestAnimationFrame(loop);return;}
   if(playing&&!paused){
