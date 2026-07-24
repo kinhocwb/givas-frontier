@@ -210,6 +210,14 @@
 <button id="skipBtn">Pular ▸</button>
 <div id="locCard"><div id="locTitle"></div><div id="locDesc"></div></div>
 <div id="chapCard"><div id="chapSmall"></div><div id="chapBig"></div></div>
+<div id="cfgFull" style="display:none;position:fixed;inset:0;z-index:80;background:#101318;color:#e8ecf4;font-family:inherit;box-sizing:border-box;padding:8px;overflow:hidden;">
+  <div id="cfgHead" style="display:flex;align-items:center;justify-content:space-between;padding:4px 6px 10px;border-bottom:2px solid #2a2f3a;margin-bottom:8px;">
+    <button id="cfgBack" style="background:#3a3f4a;color:#fff;border:2px solid #000;border-radius:8px;padding:8px 14px;font-family:inherit;font-weight:bold;font-size:15px;">◀ Voltar</button>
+    <h2 id="cfgTitle" style="color:#ffd857;font-size:15px;margin:0;flex:1;text-align:center;">⚙️ Configurações</h2>
+    <button id="cfgClose" style="background:#8a3a3a;color:#fff;border:2px solid #000;border-radius:8px;padding:8px 14px;font-family:inherit;font-weight:bold;font-size:15px;">✕</button>
+  </div>
+  <div id="cfgBody" style="height:calc(100% - 68px);overflow:hidden;"></div>
+</div>
 <div class="panel" id="uiPanel"><div class="panelBox">
   <div class="panelBoxInner" id="uiScroll">
     <h2 id="uiTitle"></h2><div class="tabs" id="uiTabs"></div><div id="uiList"></div>
@@ -4466,8 +4474,157 @@ function volSlider(container,label,chave,onChange){
 }
 const VOLREG=[];
 function repintarVolumes(){for(const d of VOLREG){try{d._pinta();}catch(e){}}}
+let cfgTela="menu";
+function abrirCfg(tela){
+  cfgTela=tela||"menu";
+  $("cfgFull").style.display="block";
+  panelAberto=true;stopHold();
+  renderCfg();
+}
+function fecharCfg(){
+  $("cfgFull").style.display="none";
+  panelAberto=false;
+  applyHud();applyBtnPos();saveHud();
+}
+function voltarCfg(){
+  if(cfgTela==="menu")fecharCfg();
+  else{cfgTela="menu";renderCfg();}
+}
+function toggleCfg(k){HUDCFG[k]=!HUDCFG[k];applyHud();renderCfg();saveHud();}
+function renderCfg(){
+  const body=$("cfgBody"),tit=$("cfgTitle");
+  body.innerHTML="";
+  // === MENU PRINCIPAL: 6 quadrados grandes lado a lado ===
+  if(cfgTela==="menu"){
+    tit.textContent="⚙️ Configurações";
+    body.style.display="grid";
+    body.style.gridTemplateColumns="repeat(3,1fr)";
+    body.style.gridTemplateRows="repeat(2,1fr)";
+    body.style.gap="8px";
+    body.style.padding="4px";
+    body.style.boxSizing="border-box";
+    body.style.overflow="hidden";
+    const cats=[
+      ["tela",   "📱","Tela"],
+      ["botoes", "🎮","Botões"],
+      ["combate","💥","Combate"],
+      ["audio",  "🔊","Áudio"],
+      ["extra",  "✨","Backup"],
+      ["reset",  "↺","Padrão"],
+    ];
+    for(const [id,ic,lb] of cats){
+      const b=document.createElement("button");
+      b.style.cssText="background:#2a2f3a;color:#fff;border:3px solid #000;border-radius:12px;font-family:inherit;font-weight:bold;font-size:16px;padding:6px;line-height:1.3;box-shadow:0 3px 0 #00000060;cursor:pointer;";
+      b.innerHTML=`<div style="font-size:34px">${ic}</div><div>${lb}</div>`;
+      b.addEventListener("click",e=>{e.preventDefault();cfgTela=id;renderCfg();});
+      body.appendChild(b);
+    }
+    return;
+  }
+  // === TELAS INTERNAS: grid vertical de linhas, cabendo tudo ===
+  body.style.display="block";
+  body.style.padding="0";
+  body.style.overflow="hidden";
+  const rows=document.createElement("div");
+  rows.style.cssText="display:grid;gap:6px;height:100%;grid-auto-rows:1fr;";
+  body.appendChild(rows);
+  const linha=(html,onClick)=>{
+    const d=document.createElement("div");
+    d.style.cssText="background:#1c2028;border:2px solid #2a2f3a;border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;overflow:hidden;";
+    d.innerHTML=html;
+    if(onClick){d.style.cursor="pointer";d.addEventListener("click",e=>{e.preventDefault();onClick(e);});}
+    rows.appendChild(d);
+    return d;
+  };
+  const tog=(key,label,desc)=>{
+    const on=HUDCFG[key];
+    linha(`<div style="flex:1;overflow:hidden"><b style="font-size:13px">${label}</b>${desc?`<br><small style="opacity:.7;font-size:10px">${desc}</small>`:""}</div>
+      <div style="background:${on?"#3fa32f":"#5a3a3a"};color:#fff;padding:8px 14px;border-radius:8px;font-weight:bold;font-size:13px;border:2px solid #000">${on?"✅ ON":"⬜ OFF"}</div>`,()=>toggleCfg(key));
+  };
+  if(cfgTela==="tela"){
+    tit.textContent="📱 Tela";
+    rows.style.gridTemplateRows="repeat(6,1fr)";
+    tog("barras","❤️ Barras de status","Vida, mana, XP e moedas");
+    tog("minimapa","🗺️ Minimapa","Canto superior direito");
+    tog("objetivo","🎯 Aviso de objetivo","Faixa dourada no topo");
+    tog("seta","🔶 Seta do objetivo","Ponteiro girando");
+    tog("missao","📜 Resumo de missão","Canto inferior");
+    tog("nomes","🏷️ Nomes dos personagens","Sobre NPCs");
+  }
+  else if(cfgTela==="botoes"){
+    tit.textContent="🎮 Botões";
+    rows.style.gridTemplateRows="repeat(6,1fr)";
+    tog("ajuda","❓ Ajuda","");
+    tog("retorno","🌀 Pedra de retorno","Voltar à vila");
+    tog("pocao","🧪 Poção rápida","Sem abrir mochila");
+    tog("diario","📋 Diário de missões","");
+    linha(`<div style="flex:1"><b>🎮 Mover botões</b><br><small style="opacity:.7">Arrastar cada um pela tela</small></div>
+      <div style="background:#c69a2f;color:#101318;padding:8px 14px;border-radius:8px;font-weight:bold;font-size:13px;border:2px solid #000">Editar</div>`,()=>{fecharCfg();startHudEdit();});
+    const rt=document.createElement("div");
+    rt.style.cssText="background:#1c2028;border:2px solid #2a2f3a;border-radius:10px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;";
+    const lbl=document.createElement("div");
+    lbl.style.flex="1";
+    lbl.innerHTML=`<b>🎮 Tamanho dos botões</b>`;
+    rt.appendChild(lbl);
+    const sz=document.createElement("div");
+    sz.style.cssText="display:flex;gap:4px;";
+    rt.appendChild(sz);
+    rows.appendChild(rt);
+    for(const [lb,v] of [["P",0.8],["M",1],["G",1.25],["GG",1.5]]){
+      const on=Math.abs((HUDCFG.tam||1)-v)<0.01;
+      const b=document.createElement("button");
+      b.textContent=lb;
+      b.style.cssText=`background:${on?"#c69a2f":"#3a3f4a"};color:#fff;border:2px solid #000;border-radius:6px;padding:8px 10px;font-family:inherit;font-weight:bold;font-size:12px;min-width:34px;`;
+      b.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();HUDCFG.tam=v;applyHud();renderCfg();saveHud();});
+      sz.appendChild(b);
+    }
+  }
+  else if(cfgTela==="combate"){
+    tit.textContent="💥 Combate";
+    rows.style.gridTemplateRows="repeat(4,1fr)";
+    tog("dano","💥 Números de dano","Mostra dano causado/recebido");
+    tog("tremida","📳 Tremida de tela","Impacto dos golpes");
+    tog("contorno","🚧 Marcar obstáculos","Pinta a base do que bloqueia");
+    tog("clima","🌫️ Efeitos de clima","Neve, névoa e almas");
+  }
+  else if(cfgTela==="audio"){
+    tit.textContent="🔊 Áudio";
+    rows.style.gridTemplateRows="auto auto 1fr 1fr";
+    tog("musica","🎵 Música","Trilha por reino");
+    tog("som","🔊 Efeitos sonoros","");
+    // sliders
+    const wrapM=document.createElement("div");
+    wrapM.style.cssText="background:#1c2028;border:2px solid #2a2f3a;border-radius:10px;padding:8px 12px;";
+    rows.appendChild(wrapM);
+    volSlider(wrapM,"🎵 Música","musVol",()=>aplicarVolMus());
+    const wrapS=document.createElement("div");
+    wrapS.style.cssText="background:#1c2028;border:2px solid #2a2f3a;border-radius:10px;padding:8px 12px;";
+    rows.appendChild(wrapS);
+    volSlider(wrapS,"🔊 Efeitos","sfxVol",v=>{if(v>0)sfx(660,.08);});
+  }
+  else if(cfgTela==="extra"){
+    tit.textContent="✨ Backup";
+    rows.style.gridTemplateRows="repeat(3,1fr)";
+    linha(`<div style="flex:1"><b>💾 Backup do save</b><br><small style="opacity:.7">Código para trocar de celular</small></div>
+      <div style="background:#c69a2f;color:#101318;padding:8px 14px;border-radius:8px;font-weight:bold;font-size:13px;border:2px solid #000">Abrir</div>`,()=>{fecharCfg();setTimeout(exportSave,150);});
+    linha(`<div style="flex:1"><b>📥 Restaurar backup</b><br><small style="opacity:.7">Colar código salvo</small></div>
+      <div style="background:#3a7ac6;color:#fff;padding:8px 14px;border-radius:8px;font-weight:bold;font-size:13px;border:2px solid #000">Abrir</div>`,()=>{fecharCfg();setTimeout(importSave,150);});
+    linha(`<div style="flex:1"><b style="color:#ff6b5e">🔧 Se o jogo travar</b><br><small style="opacity:.7">Apaga TUDO e recomeça</small></div>
+      <div style="background:#8a3a3a;color:#fff;padding:8px 14px;border-radius:8px;font-weight:bold;font-size:13px;border:2px solid #000">Resetar</div>`,()=>{if(confirm("Apaga TODO o progresso. Certeza?")){try{localStorage.clear();}catch(e){}location.reload();}});
+  }
+  else if(cfgTela==="reset"){
+    tit.textContent="↺ Restaurar padrão";
+    rows.style.gridTemplateRows="1fr auto";
+    linha(`<div style="flex:1;text-align:center"><b>Isto NÃO apaga seu progresso.</b><br><small style="opacity:.75">Volta as configurações de HUD, som e posição dos botões ao padrão do jogo.</small></div>`);
+    linha(`<div style="flex:1;text-align:center"><b style="color:#ff6b5e">Restaurar tudo?</b></div>
+      <div style="background:#8a3a3a;color:#fff;padding:8px 14px;border-radius:8px;font-weight:bold;font-size:13px;border:2px solid #000">Restaurar</div>`,()=>{Object.assign(HUDCFG,{barras:true,minimapa:true,missao:true,objetivo:true,seta:true,nomes:true,ajuda:true,retorno:true,pocao:true,diario:true,clima:true,som:true,tremida:true,dano:true,contorno:false,musica:true,musVol:0.7,sfxVol:0.9,tam:1,pos:{}});applyHud();applyBtnPos();cfgTela="menu";renderCfg();saveHud();toast("↺ Configurações restauradas");});
+  }
+}
 let hudAba="tela";
 function openHudCfg(aba){
+  abrirCfg("menu");
+  return;
+
   if(aba)hudAba=aba;
   openPanel("⚙️ Configurar HUD",l=>{
     // ---- barra de abas ----
@@ -4612,6 +4769,9 @@ function initHudDrag(){
     el.addEventListener("pointerup",up,true);
     el.addEventListener("pointercancel",up,true);
   }
+  {const cb=$("cfgBack"),cc=$("cfgClose");
+   if(cb)cb.addEventListener("click",e=>{e.preventDefault();voltarCfg();});
+   if(cc)cc.addEventListener("click",e=>{e.preventDefault();fecharCfg();});}
   {const bd=$("btnDiario");
    if(bd)bd.addEventListener("pointerdown",e=>{if(hudEdit)return;e.preventDefault();e.stopPropagation();if(playing&&!CS&&!dlgOpen)openDiario();});}
   {const b=$("btnPot");
