@@ -105,6 +105,10 @@
   .row button.sell{background:#c6392f;}
   .row button.gold{background:#c69a2f;}
   .row button:disabled{background:#555;opacity:.6;}
+  .hudTabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:10px;position:sticky;top:0;background:#171a20;padding-bottom:6px;z-index:2;}
+  .hudTab{background:#2a2f3a;color:#c8d0dc;border:2px solid #000;border-radius:8px;padding:9px 4px;font-family:inherit;font-size:11px;font-weight:bold;line-height:1.15;text-align:center;cursor:pointer;}
+  .hudTab.on{background:#c69a2f;color:#101318;border-color:#000;}
+  .hudTab:active{filter:brightness(1.2);}
   .cdxSearch{display:flex;gap:6px;margin-bottom:10px;position:sticky;top:0;background:#171a20;padding-bottom:6px;z-index:2;}
   #codexIn{flex:1;background:#0f1218;border:2px solid #7a8598;color:#fff;border-radius:8px;padding:9px 11px;font-family:inherit;font-size:14px;
     user-select:text;-webkit-user-select:text;touch-action:auto;outline:none;}
@@ -4454,43 +4458,90 @@ function volSlider(container,label,chave,onChange){
 }
 const VOLREG=[];
 function repintarVolumes(){for(const d of VOLREG){try{d._pinta();}catch(e){}}}
-function openHudCfg(){
+let hudAba="tela";
+function openHudCfg(aba){
+  if(aba)hudAba=aba;
   openPanel("⚙️ Configurar HUD",l=>{
+    // ---- barra de abas ----
+    const nav=document.createElement("div");nav.className="hudTabs";
+    const abas=[
+      ["tela",   "📱 Tela"],
+      ["botoes", "🎮 Botões"],
+      ["combate","💥 Combate"],
+      ["audio",  "🔊 Áudio"],
+      ["extra",  "✨ Extras"],
+      ["reset",  "↺ Padrão"],
+    ];
+    for(const [id,lb] of abas){
+      const b=document.createElement("button");
+      b.className="hudTab"+(hudAba===id?" on":"");
+      b.innerHTML=lb;
+      b.addEventListener("click",e=>{e.preventDefault();hudAba=id;openHudCfg();});
+      nav.appendChild(b);
+    }
+    l.appendChild(nav);
+
     const tog=(key,label,desc)=>{
       const r=row(l,`<span><b>${label}</b>${desc?`<br><small style="opacity:.7">${desc}</small>`:""}</span>`);
-      const b=btn(r,HUDCFG[key]?"✅ Ligado":"⬜ Desligado",()=>{
+      btn(r,HUDCFG[key]?"✅ Ligado":"⬜ Desligado",()=>{
         HUDCFG[key]=!HUDCFG[key];applyHud();openHudCfg();},HUDCFG[key]?"":"sell");
-      return b;
     };
-    row(l,`<span style="opacity:.75;font-size:11px">Toque para ligar ou desligar cada parte da tela.</span>`);
-    tog("barras","❤️ Barras de status","Vida, mana, stamina, XP e moedas");
-    tog("minimapa","🗺️ Minimapa","Canto superior direito");
-    tog("objetivo","🎯 Aviso de objetivo","Faixa dourada no topo");
-    tog("seta","🔶 Seta do objetivo","Ponteiro girando ao seu redor");
-    tog("missao","📜 Resumo de missão","Texto no canto inferior esquerdo");
-    tog("nomes","🏷️ Nomes dos personagens","Sobre você e os NPCs (chefes sempre aparecem)");
-    tog("ajuda","❓ Botão de ajuda","");
-    tog("retorno","🌀 Pedra de retorno","Botão de voltar para a vila");
-    tog("pocao","🧪 Poção rápida","Botão para beber a melhor poção sem abrir a mochila");
-    tog("diario","📋 Diário de missões","Botão de acesso rápido ao Diário");
-    tog("dano","💥 Números de dano","Mostra o dano causado e recebido");
-    tog("tremida","📳 Tremida de tela","Impacto nos golpes e críticos");
-    tog("contorno","🚧 Marcar obstáculos","Pinta a base do que bloqueia passagem — ajuda muito no Reino Sombrio");
-    tog("clima","🌫️ Efeitos de clima","Neve, névoa e almas — desligue se travar");
-    tog("musica","🎵 Música","Trilha diferente em cada reino e nos chefes");
-    volSlider(l,"🎵 Música",  "musVol",()=>aplicarVolMus());
-    volSlider(l,"🔊 Efeitos", "sfxVol",v=>{if(v>0)sfx(660,.08);});
-    row(l,`<span style="opacity:.65;font-size:10px">Arraste para ajustar. Toque no alto-falante para silenciar sem perder o valor.</span>`);
-    const rm=row(l,`<span><b>🎮 Mover botões na tela</b><br><small style="opacity:.7">Arraste cada botão para onde sua mão alcança melhor</small></span>`);
-    btn(rm,"Editar",()=>startHudEdit(),"gold");
-    const r=row(l,`<span><b>🎮 Tamanho dos botões</b><br><small style="opacity:.7">Ataque, habilidade, ação e mochila</small></span>`);
-    for(const [lb,v] of [["P",0.8],["M",1],["G",1.25],["GG",1.5]]){
-      const b=btn(r,lb,()=>{HUDCFG.tam=v;applyHud();openHudCfg();},
-        Math.abs((HUDCFG.tam||1)-v)<0.01?"gold":"");
+
+    // ---- conteúdo por aba ----
+    if(hudAba==="tela"){
+      row(l,`<span style="opacity:.75;font-size:11px">O que aparece na sua tela durante o jogo.</span>`);
+      tog("barras","❤️ Barras de status","Vida, mana, stamina, XP e moedas");
+      tog("minimapa","🗺️ Minimapa","Canto superior direito");
+      tog("objetivo","🎯 Aviso de objetivo","Faixa dourada no topo");
+      tog("seta","🔶 Seta do objetivo","Ponteiro girando ao seu redor");
+      tog("missao","📜 Resumo de missão","Texto no canto inferior esquerdo");
+      tog("nomes","🏷️ Nomes dos personagens","Sobre você e os NPCs (chefes sempre aparecem)");
     }
-    const rr=row(l,`<span><b>↺ Restaurar padrão</b></span>`);
-    btn(rr,"Restaurar",()=>{Object.assign(HUDCFG,{barras:true,minimapa:true,missao:true,objetivo:true,
-      seta:true,nomes:true,ajuda:true,retorno:true,pocao:true,diario:true,clima:true,som:true,tremida:true,dano:true,contorno:false,musica:true,musVol:0.7,sfxVol:0.9,tam:1,pos:{}});applyHud();applyBtnPos();openHudCfg();},"sell");
+    else if(hudAba==="botoes"){
+      row(l,`<span style="opacity:.75;font-size:11px">Ligar/desligar botões de acesso rápido.</span>`);
+      tog("ajuda","❓ Botão de ajuda","");
+      tog("retorno","🌀 Pedra de retorno","Botão de voltar para a vila");
+      tog("pocao","🧪 Poção rápida","Beber poção sem abrir a mochila");
+      tog("diario","📋 Diário de missões","Acesso rápido às missões");
+      const rm=row(l,`<span><b>🎮 Mover botões na tela</b><br><small style="opacity:.7">Arraste cada botão para onde alcançar melhor</small></span>`);
+      btn(rm,"Editar",()=>startHudEdit(),"gold");
+      const r=row(l,`<span><b>🎮 Tamanho dos botões</b><br><small style="opacity:.7">P, M, G ou GG</small></span>`);
+      for(const [lb,v] of [["P",0.8],["M",1],["G",1.25],["GG",1.5]]){
+        btn(r,lb,()=>{HUDCFG.tam=v;applyHud();openHudCfg();},
+          Math.abs((HUDCFG.tam||1)-v)<0.01?"gold":"");
+      }
+    }
+    else if(hudAba==="combate"){
+      row(l,`<span style="opacity:.75;font-size:11px">Efeitos visuais e de combate.</span>`);
+      tog("dano","💥 Números de dano","Mostra o dano causado e recebido");
+      tog("tremida","📳 Tremida de tela","Impacto nos golpes e críticos");
+      tog("contorno","🚧 Marcar obstáculos","Pinta o pé do que bloqueia passagem");
+      tog("clima","🌫️ Efeitos de clima","Neve, névoa e almas — desligue se travar");
+    }
+    else if(hudAba==="audio"){
+      row(l,`<span style="opacity:.75;font-size:11px">Volume e trilha sonora.</span>`);
+      tog("musica","🎵 Música","Trilha diferente em cada reino");
+      tog("som","🔊 Efeitos sonoros","Sons de ataque, cura, etc");
+      volSlider(l,"🎵 Música",  "musVol",()=>aplicarVolMus());
+      volSlider(l,"🔊 Efeitos", "sfxVol",v=>{if(v>0)sfx(660,.08);});
+      row(l,`<span style="opacity:.65;font-size:10px">Arraste para ajustar. Toque no alto-falante para silenciar sem perder o valor.</span>`);
+    }
+    else if(hudAba==="extra"){
+      row(l,`<span style="opacity:.75;font-size:11px">Backup e recuperação.</span>`);
+      const rb=row(l,`<span><b>💾 Backup do save</b><br><small style="opacity:.7">Gerar código para trocar de celular</small></span>`);
+      btn(rb,"Abrir",()=>{closePanels();setTimeout(exportSave,150);},"gold");
+      const rr=row(l,`<span><b>📥 Restaurar backup</b><br><small style="opacity:.7">Colar um código salvo</small></span>`);
+      btn(rr,"Abrir",()=>{closePanels();setTimeout(importSave,150);});
+      const rc=row(l,`<span><b style="color:#ff6b5e">🔧 Se o jogo travar</b><br><small style="opacity:.7">Apaga TUDO e recomeça</small></span>`);
+      btn(rc,"Resetar",()=>{if(confirm("Apaga TODO o progresso. Certeza?")){try{localStorage.clear();}catch(e){}location.reload();}},"sell");
+    }
+    else if(hudAba==="reset"){
+      row(l,`<span style="opacity:.75;font-size:11px">Voltar às configurações padrão do jogo.</span>`);
+      row(l,`<span><b>Isto NÃO apaga seu progresso.</b> Só os ajustes de HUD, som e posição dos botões.</span>`);
+      const rr=row(l,`<span><b>↺ Restaurar padrão</b></span>`);
+      btn(rr,"Restaurar",()=>{Object.assign(HUDCFG,{barras:true,minimapa:true,missao:true,objetivo:true,
+        seta:true,nomes:true,ajuda:true,retorno:true,pocao:true,diario:true,clima:true,som:true,tremida:true,dano:true,contorno:false,musica:true,musVol:0.7,sfxVol:0.9,tam:1,pos:{}});applyHud();applyBtnPos();hudAba="tela";openHudCfg();},"sell");
+    }
   });
 }
 
