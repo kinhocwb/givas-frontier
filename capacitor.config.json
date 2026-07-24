@@ -1,0 +1,9 @@
+{
+  "appId": "com.zapture.givasfrontier",
+  "appName": "Givas Frontier",
+  "webDir": "www",
+  "backgroundColor": "#101318",
+  "android": {
+    "backgroundColor": "#101318"
+  }
+}

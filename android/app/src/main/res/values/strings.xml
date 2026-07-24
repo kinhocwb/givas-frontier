@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Givas Frontier</string>
+    <string name="title_activity_main">Givas Frontier</string>
+    <string name="package_name">com.zapture.givasfrontier</string>
+    <string name="custom_url_scheme">com.zapture.givasfrontier</string>
+</resources>
