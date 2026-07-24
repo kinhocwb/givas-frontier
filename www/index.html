@@ -88,17 +88,17 @@
   #dlgText{font-size:14px;line-height:1.45;min-height:40px;white-space:pre-line;}
   #dlgNext{text-align:right;font-size:11px;color:#7a8598;margin-top:4px;animation:blink 1s infinite;}
   @keyframes blink{50%{opacity:.2;}}
-  .panel{position:fixed;inset:0;z-index:35;background:#000000a8;display:none;align-items:center;justify-content:center;touch-action:pan-y;overscroll-behavior:contain;}
-  .panelBox{width:min(94vw,560px);max-height:84vh;background:#171a20;border:3px solid #7a8598;border-radius:12px;color:#e8ecf4;position:relative;display:flex;flex-direction:column;}
-  .panelBoxInner{overflow-y:auto;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;padding:14px 14px 8px;flex:1;scroll-behavior:smooth;}
-  .scrollBtn{position:absolute;right:8px;width:38px;height:38px;border-radius:50%;background:#2f6fc6;color:#fff;
-    border:2px solid #000;font-family:inherit;font-weight:bold;font-size:19px;box-shadow:0 3px 0 #00000060;
-    display:none;align-items:center;justify-content:center;padding:0;line-height:1;z-index:3;opacity:0.9;}
+  .panel{position:fixed;inset:0;z-index:35;background:#000000a8;display:none;align-items:center;justify-content:center;padding:8px;box-sizing:border-box;}
+  .panelBox{width:min(94vw,560px);height:min(90vh,540px);background:#171a20;border:3px solid #7a8598;border-radius:12px;color:#e8ecf4;position:relative;display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;}
+  .panelBoxInner{overflow-y:scroll;-webkit-overflow-scrolling:touch;touch-action:pan-y;overscroll-behavior:contain;padding:12px 12px 4px;flex:1 1 auto;scroll-behavior:smooth;min-height:0;}
+  .scrollBtn{position:absolute;right:10px;width:44px;height:44px;border-radius:50%;background:#2f6fc6;color:#fff;
+    border:2px solid #000;font-family:inherit;font-weight:bold;font-size:22px;box-shadow:0 3px 0 #00000060;
+    display:none;align-items:center;justify-content:center;padding:0;line-height:1;z-index:5;opacity:0.95;}
   .scrollBtn:active{transform:translateY(2px);box-shadow:none;filter:brightness(1.2);}
-  .scrollBtn.top{top:52px;}
-  .scrollBtn.bot{bottom:56px;background:#3fa32f;}
-  .scrollHint{position:absolute;left:0;right:0;bottom:44px;height:34px;pointer-events:none;
-    background:linear-gradient(to top,#171a20,#171a2000);z-index:2;display:none;}
+  .scrollBtn.top{top:14px;}
+  .scrollBtn.bot{bottom:64px;background:#3fa32f;}
+  .scrollHint{position:absolute;left:0;right:0;bottom:52px;height:36px;pointer-events:none;
+    background:linear-gradient(to top,#171a20,#171a2000);z-index:4;display:none;}
   .panelBox h2{color:#ffd857;font-size:16px;margin-bottom:10px;text-align:center;}
   .row{display:flex;justify-content:space-between;align-items:center;padding:6px;border-bottom:1px solid #ffffff18;font-size:12px;gap:8px;flex-wrap:wrap;}
   .row button, .panelBox .act{background:#2f6fc6;color:#fff;border:2px solid #000;border-radius:6px;padding:5px 12px;font-weight:bold;font-family:inherit;font-size:12px;}
@@ -134,7 +134,7 @@
   input[type=range].vol::-moz-range-track{height:10px;background:#2a2e38;border:2px solid #000;border-radius:6px;}
   input[type=range].vol::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:#ffd857;border:2px solid #000;}
   #pauseVol{width:min(70vw,280px);margin:10px 0 4px;background:#101318d0;border:2px solid #7a8598;border-radius:10px;padding:8px 12px;}
-  .closeBtn{display:block;margin:12px auto 0;background:#7a8598;color:#101318;border:2px solid #000;border-radius:8px;padding:8px 22px;font-weight:bold;font-family:inherit;font-size:14px;}
+  .closeBtn{flex:0 0 auto;margin:0!important;border-radius:0 0 9px 9px!important;display:block;margin:12px auto 0;background:#7a8598;color:#101318;border:2px solid #000;border-radius:8px;padding:8px 22px;font-weight:bold;font-family:inherit;font-size:14px;}
   .tabs{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap;justify-content:center;}
   .tabs button{background:#2a2e38;color:#fff;border:2px solid #000;border-radius:6px;padding:5px 10px;font-family:inherit;font-size:11px;font-weight:bold;}
   .tabs button.on{background:#2f6fc6;}
@@ -1239,17 +1239,25 @@ function questTalk(key,nome,introLines,checkFn,doneLines,reward){
 let panelAberto=false;
 function updateScrollBtns(){
   const sc=$("uiScroll");if(!sc)return;
-  const emCima=sc.scrollTop>18;
-  const podeDescer=sc.scrollTop + sc.clientHeight < sc.scrollHeight - 18;
+  const emCima=sc.scrollTop>10;
+  const podeDescer=sc.scrollHeight - sc.scrollTop - sc.clientHeight > 10;
   $("uiUp").style.display=emCima?"flex":"none";
   $("uiDown").style.display=podeDescer?"flex":"none";
   $("uiHint").style.display=podeDescer?"block":"none";
 }
 function rolarUi(dir){
   const sc=$("uiScroll");if(!sc)return;
-  const passo=Math.max(180,sc.clientHeight*0.75);
-  sc.scrollTop += dir*passo;
-  setTimeout(updateScrollBtns,320);
+  const passo=Math.max(140,sc.clientHeight*0.7);
+  const alvo=sc.scrollTop + dir*passo;
+  // scroll suave manual — funciona em WebViews que ignoram scroll-behavior
+  const inicio=sc.scrollTop, t0=Date.now(), dur=240;
+  const passo1=()=>{
+    const p=Math.min(1,(Date.now()-t0)/dur);
+    sc.scrollTop=inicio+(alvo-inicio)*(1-Math.pow(1-p,2));
+    if(p<1)requestAnimationFrame(passo1);
+    else updateScrollBtns();
+  };
+  passo1();
 }
 function openPanel(title,builder,tabs){
   panelAberto=true;
